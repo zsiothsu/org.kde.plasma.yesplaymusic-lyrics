@@ -1,0 +1,22 @@
+{
+	"KPlugin": {
+		"Id": "org.kde.plasma.yesplaymusic-lyrics",
+		"Name": "yesplaymusic-lyric",
+		"Description": "Display YesPlayMusic lyrics on the plasma panel",
+		"Version": "0.1",
+		"Icon": "applications-multimedia",
+		"Authors": [
+			{
+				"Name": "Chipen Hsiao",
+				"Email": "chipenhsiao@163.com"
+			}
+		],
+		"License": "MIT",
+		"Website": "",
+		"ServiceTypes": [
+			"Plasma/Applet"
+		]
+	},
+	"X-Plasma-API": "declarativeappletscript",
+	"X-Plasma-MainScript": "ui/main.qml"
+}

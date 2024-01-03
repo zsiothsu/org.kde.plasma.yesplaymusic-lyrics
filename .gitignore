@@ -1,0 +1,5 @@
+*.plasmoid
+*.qmlc
+*.jsc
+*.mo
+/build
