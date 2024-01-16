@@ -9,6 +9,9 @@ import "lyrics.js" as Json_lyrics
 
 Item {
     id: root
+
+    readonly property int flush_time: Plasmoid.configuration.flush_time
+
     Plasmoid.compactRepresentation: Plasmoid.fullRepresentation
     Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
     Plasmoid.fullRepresentation: Item {
@@ -18,10 +21,13 @@ Item {
             id: lyric_line;
             text: "";
             color: theme.textColor;
+            anchors.fill: parent
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
         }
 
         Timer {
-            interval: 100; running: true; repeat: true
+            interval: flush_time; running: true; repeat: true
             onTriggered: get_lyric();
         }
 
