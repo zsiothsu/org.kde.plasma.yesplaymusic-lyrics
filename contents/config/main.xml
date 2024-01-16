@@ -10,6 +10,16 @@
       <label>config flush time.</label>
       <default>100</default>
     </entry>
+
+    <entry name="text_color" type="string">
+      <label>config lyrics' color.</label>
+      <default>white</default>
+    </entry>
+
+    <entry name="text_font" type="string">
+      <label>config lyrics' font family.</label>
+      <default></default>
+    </entry>
   </group>
 
 </kcfg>

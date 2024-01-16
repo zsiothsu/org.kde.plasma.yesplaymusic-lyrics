@@ -11,6 +11,8 @@ Item {
     id: root
 
     readonly property int flush_time: Plasmoid.configuration.flush_time
+    readonly property string text_color: Plasmoid.configuration.text_color
+    readonly property string text_font: Plasmoid.configuration.text_font
 
     Plasmoid.compactRepresentation: Plasmoid.fullRepresentation
     Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
@@ -20,10 +22,11 @@ Item {
         Label {
             id: lyric_line;
             text: "";
-            color: theme.textColor;
+            color: text_color;
             anchors.fill: parent
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
+            font: text_font || theme.defaultFont
         }
 
         Timer {
