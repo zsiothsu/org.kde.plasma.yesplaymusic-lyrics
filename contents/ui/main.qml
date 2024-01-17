@@ -11,6 +11,7 @@ Item {
     id: root
 
     readonly property int flush_time: Plasmoid.configuration.flush_time
+    readonly property int time_offset: Plasmoid.configuration.time_offset
     readonly property string text_color: Plasmoid.configuration.text_color
     readonly property string text_font: Plasmoid.configuration.text_font
 
@@ -156,7 +157,14 @@ Item {
                 var last_text = ""
                 var flag = false
                 for (var i = 0; i < lyric_obj.length; i++) {
-                    if ((last_time <= tracker.progress) &&  (tracker.progress < lyric_obj.lyrics_all[i].timestamp)) {
+                    var real_time = tracker.progress + time_offset / 1000
+
+                    if (real_time < 0) {
+                        last_text = lyric_obj.lyrics_all[0].text
+                        break
+                    }
+
+                    if ((last_time <= real_time) &&  (real_time < lyric_obj.lyrics_all[i].timestamp)) {
                         if (last_text != '') {
                             lyric_line.text = last_text
                         }

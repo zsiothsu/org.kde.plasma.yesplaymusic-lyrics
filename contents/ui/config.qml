@@ -9,6 +9,7 @@ Item {
     height: childrenRect.height
 
     property alias cfg_flush_time: config_flush_time.value
+    property alias cfg_time_offset: config_time_offset.value
     property alias cfg_text_color: text_color.color
     property alias cfg_text_font: text_font.font
 
@@ -29,7 +30,25 @@ Item {
             }
 
             QtControls.Label {
-                text: i18n("ms")
+                text: i18n("ms (0~2000ms)")
+            }
+        }
+
+        QtLayouts.RowLayout {
+            QtControls.Label {
+                text: i18n("time offset: ")
+            }
+
+            QtControls.SpinBox {
+                id: config_time_offset
+                minimumValue: -2000;
+                maximumValue: 2000;
+                value: cfg_time_offset
+                stepSize: 500
+            }
+
+            QtControls.Label {
+                text: i18n("ms (-2000~2000ms)")
             }
         }
 
