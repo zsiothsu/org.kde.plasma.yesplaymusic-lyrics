@@ -38,6 +38,7 @@ Item {
         property string lyric_cache: ''
         property int id_cache: 0
         property bool cached: false
+        property int timeout_count: 0
 
         function get_lyric() {
             var xhr= new XMLHttpRequest();
@@ -48,7 +49,16 @@ Item {
 
                 if (tracker.id == -1) return
 
+                timeout_count = 0
                 select_lyric(tracker);
+            } else {
+                if (timeout_count < 5) {
+                    timeout_count++
+                }
+                if (timeout_count >= 5) {
+                    lyric_line.text = ""
+                    cached = 0
+                }
             }
         }
 
