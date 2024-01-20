@@ -26,6 +26,11 @@
       <default></default>
     </entry>
 
+    <entry name="translate" type="string">
+      <label>config translation of lyrics.</label>
+      <default>original</default>
+    </entry>
+
   </group>
 
 </kcfg>

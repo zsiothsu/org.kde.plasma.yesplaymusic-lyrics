@@ -87,7 +87,7 @@
                 }
                 for (var j = 0; j < timestamp_all.length; j++) {
                     var ts_match = /^\[(\d{1,2}):(\d|[0-5]\d)(\.(\d+))?\]$/g.exec(timestamp_all[j]);
-                    if (ts_match) {
+                    if (ts_match && (line != "")) {
                         this.lyrics_all.push({
                             timestamp: Number(ts_match[1]) * 60 + Number(ts_match[2]) + (ts_match[4] ? Number('0.' + ts_match[4]) : 0),
                             text: line
