@@ -7,8 +7,8 @@
 ## 原理
 YesPlayMusic在运行时会开放两个api获取歌曲信息，一个是`http://127.0.0.1:27232/player`用来获取基本信息，另一个是`http://127.0.0.1:10754/lyric?id=`用来获取歌词，两个api的返回值如下:
 
+`/* http://127.0.0.1:27232/player */`:
 ```json
-/* http://127.0.0.1:27232/player */
 {
     "currentTrack": {
     "name": "broKen NIGHT",
@@ -28,8 +28,8 @@ YesPlayMusic在运行时会开放两个api获取歌曲信息，一个是`http://
 }
 ```
 
+`/* http://127.0.0.1:10754/lyric?id=476081900 */`:
 ```json
-/* http://127.0.0.1:10754/lyric?id=476081900 */
 {
      "sgc": false,
      "sfy": false,
