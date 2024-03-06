@@ -141,11 +141,6 @@ PlasmoidItem {
                 var xhr= new XMLHttpRequest();
                 xhr.open('GET', 'http://127.0.0.1:10754/lyric?id=' + tracker.id)
                 xhr.send()
-                var timeoutId = setTimeout(function() {
-                    if (xhr.readyState !== 4) {
-                        xhr.abort();
-                    }
-                }, 4000);
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState === 4 || xhr.status === 200) {
                         var raw_json = xhr.responseText
