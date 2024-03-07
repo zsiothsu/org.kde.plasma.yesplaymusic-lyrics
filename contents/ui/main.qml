@@ -66,7 +66,9 @@ PlasmoidItem {
                 }
                 if (timeout_count >= 5) {
                     lyric_line.text = ""
-                    cached = 0
+                    id_original_cache = 0
+                    id_translated_cache = 0
+                    id_romaji_cache = 0
                 }
             }
         }

@@ -3,7 +3,7 @@
 		"Id": "org.kde.plasma.yesplaymusic-lyrics",
 		"Name": "yesplaymusic-lyric",
 		"Description": "Display YesPlayMusic lyrics on the plasma panel",
-		"Version": "0.2.0",
+		"Version": "0.2.1",
 		"Icon": "applications-multimedia",
 		"Authors": [
 			{
