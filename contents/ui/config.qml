@@ -1,20 +1,19 @@
-import QtQuick 2.0
-import QtQuick.Controls 2.0 as QtControls
-import QtQuick.Layouts 1.0 as QtLayouts
-import QtQuick.Dialogs 1.2
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.plasmoid 2.0
-import org.kde.plasma.components 2.0 as PlasmaComponents
-
-Item {
+import QtQuick 
+import QtQuick.Controls as QtControls
+import QtQuick.Layouts as QtLayouts
+import QtQuick.Dialogs 
+import org.kde.plasma.core as PlasmaCore
+import org.kde.plasma.plasmoid 
+import org.kde.kcmutils as KCM
+KCM.SimpleKCM {
     id: config_page
     width: childrenRect.width
     height: childrenRect.height
 
     property alias cfg_flush_time: config_flush_time.value
     property alias cfg_time_offset: config_time_offset.value
-    property alias cfg_text_color: text_color.color
-    property alias cfg_text_font: text_font.font
+    property alias cfg_text_color: text_color.selectedColor
+    property alias cfg_text_font: text_font.selectedFont
     property alias cfg_translate: tranlate_button_text.text
 
     QtLayouts.ColumnLayout {
@@ -65,7 +64,7 @@ Item {
                 height: 20
                 width: 20
                 border.color: "black"
-                color: text_color.color
+                color: text_color.selectedColor
                 radius: 5
                 MouseArea {
                     anchors.fill: parent
@@ -76,10 +75,6 @@ Item {
             ColorDialog {
                 id: text_color
                 title: "set text color"
-                currentColor: cfg_text_color
-                onAccepted: {
-                    cfg_text_color = text_color.color
-                }
             }
         }
 
@@ -97,10 +92,10 @@ Item {
 
             FontDialog {
                 id: text_font
-                font: cfg_text_font
+                selectedFont: cfg_text_font
                 onAccepted: {
-                    font_button.text = text_font.font
-                    cfg_text_font = text_font.font
+                    font_button.text = text_font.selectedFont
+                    cfg_text_font = text_font.selectedFont
                     text_font.close()
                 }
                 onRejected: {

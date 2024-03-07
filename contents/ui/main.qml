@@ -1,13 +1,12 @@
-import QtQuick 2.1
-import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.5
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.plasmoid 2.0
-import org.kde.plasma.components 2.0 as PlasmaComponents
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import org.kde.plasma.core as PlasmaCore
+import org.kde.plasma.plasmoid
 
 import "lyrics.js" as Json_lyrics
 
-Item {
+PlasmoidItem {
     id: root
 
     readonly property int config_flush_time: Plasmoid.configuration.flush_time
@@ -16,9 +15,9 @@ Item {
     readonly property string config_text_font: Plasmoid.configuration.text_font
     readonly property string config_translate: Plasmoid.configuration.translate
 
-    Plasmoid.compactRepresentation: Plasmoid.fullRepresentation
-    Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
-    Plasmoid.fullRepresentation: Item {
+    compactRepresentation: fullRepresentation
+    preferredRepresentation: Plasmoid.fullRepresentation
+    fullRepresentation: Item {
         Layout.preferredWidth: lyric_line.implicitWidth
         Layout.preferredHeight: lyric_line.implicitWidth
         Label {
