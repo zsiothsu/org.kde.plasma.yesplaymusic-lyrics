@@ -14,7 +14,8 @@ KCM.SimpleKCM {
     property alias cfg_time_offset: config_time_offset.value
     property alias cfg_text_color: text_color.selectedColor
     property alias cfg_text_font: text_font.selectedFont
-    property alias cfg_translate: tranlate_button_text.text
+    property alias cfg_first_language: first_language_text.text
+    property alias cfg_second_language: second_language_text.text
 
     QtLayouts.ColumnLayout {
         anchors.left: parent.left
@@ -106,39 +107,84 @@ KCM.SimpleKCM {
 
         QtLayouts.RowLayout {
             QtControls.Label {
-                id: tranlate_button_layout
-                text: i18n("translate: ")
+                id: first_language_layout
+                text: i18n("first language: ")
             }
 
             QtControls.Label {
-                id: tranlate_button_text
+                id: first_language_text
                 visible: false
             }
 
-            QtControls.ButtonGroup {
-                id: tranlate_button
-                buttons: tranlate_button_column.children
-                onClicked: cfg_translate = button.text
-            }
+            // QtControls.ButtonGroup {
+            //     id: first_language
+            //     buttons: first_language_column.children
+            //     onClicked: cfg_first_language = button.text
+            // }
 
             Column {
-                id: tranlate_button_column
+                id: first_language_column
+
                 QtControls.RadioButton {
                     text: "original"
-                    checked: (tranlate_button_text.text === text) || (tranlate_button_text.text === "")
-                    onClicked: tranlate_button_text.text = "original"
+                    checked: (first_language_text.text === text) || (first_language_text.text === "")
+                    onClicked: first_language_text.text = "original"
                 }
                 QtControls.RadioButton {
                     text: "translated"
-                    checked: tranlate_button_text.text === text
-                    onClicked: tranlate_button_text.text = "translated"
+                    checked: first_language_text.text === text
+                    onClicked: first_language_text.text = "translated"
                 }
                 QtControls.RadioButton {
                     text: "romaji"
-                    checked: tranlate_button_text.text === text
-                    onClicked: tranlate_button_text.text = "romaji"
+                    checked: first_language_text.text === text
+                    onClicked: first_language_text.text = "romaji"
                 }
             }
         }
+
+        QtLayouts.RowLayout {
+            QtControls.Label {
+                id: second_language_layout
+                text: i18n("second language: ")
+            }
+
+            QtControls.Label {
+                id: second_language_text
+                visible: false
+            }
+
+            // QtControls.ButtonGroup {
+            //     id: second_language
+            //     buttons: second_language_column.children
+            //     onClicked: cfg_second_language = button.text
+            // }
+
+            Column {
+                id: second_language_column
+
+                QtControls.RadioButton {
+                    text: "disable"
+                    checked: (second_language_text.text === text) || (second_language_text.text === "")
+                    onClicked: second_language_text.text = "disable"
+                }
+                QtControls.RadioButton {
+                    text: "original"
+                    checked: second_language_text.text === text
+                    onClicked: second_language_text.text = "original"
+                }
+                QtControls.RadioButton {
+                    text: "translated"
+                    checked: second_language_text.text === text
+                    onClicked: second_language_text.text = "translated"
+                }
+                QtControls.RadioButton {
+                    text: "romaji"
+                    checked: second_language_text.text === text
+                    onClicked: second_language_text.text = "romaji"
+                }
+            }
+        }
+
     }
 }

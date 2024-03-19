@@ -13,7 +13,8 @@ PlasmoidItem {
     readonly property int config_time_offset: Plasmoid.configuration.time_offset
     readonly property string config_text_color: Plasmoid.configuration.text_color
     readonly property string config_text_font: Plasmoid.configuration.text_font
-    readonly property string config_translate: Plasmoid.configuration.translate
+    readonly property string cfg_first_language: Plasmoid.configuration.first_language
+    readonly property string cfg_second_language: Plasmoid.configuration.second_language
 
     compactRepresentation: fullRepresentation
     preferredRepresentation: Plasmoid.fullRepresentation
@@ -70,6 +71,34 @@ PlasmoidItem {
                     id_translated_cache = 0
                     id_romaji_cache = 0
                 }
+            }
+        }
+
+        function get_lyric_by_time(lyrics, time) {
+            var lyric_obj = new Lyrics(lyrics)
+            var last_time = 0
+            var last_text = ""
+            var flag = false
+            var real_time = time + config_time_offset / 1000
+            var target_line = ""
+            if (real_time < 0 || real_time < lyric_obj.lyrics_all[0].timestamp) {
+                real_time = lyric_obj.lyrics_all[0].timestamp
+            }
+            for (var i = 0; i < lyric_obj.length; i++) {
+                if ((last_time <= real_time) &&  (real_time < lyric_obj.lyrics_all[i].timestamp)) {
+                    target_line = last_text
+                    flag = true
+                }
+                last_time = lyric_obj.lyrics_all[i].timestamp
+                last_text = lyric_obj.lyrics_all[i].text
+                if (flag) {
+                    break
+                }
+            }
+            if (!flag) {
+                return last_text
+            } else {
+                return target_line
             }
         }
 
@@ -182,38 +211,34 @@ PlasmoidItem {
                 // select original tor other types
                 var target_lyrics = ""
                 var target_type = ""
-                if (config_translate === "romaji" && valid_romaji_cache) {
+                var second_lyrics = ""
+                var second_type = ""
+                if (cfg_first_language === "romaji" && valid_romaji_cache) {
                     target_lyrics = lyric_romaji_cache
                     target_type = "romaji"
-                } else if (config_translate === "translated" && valid_translated_cache) {
+                } else if (cfg_first_language === "translated" && valid_translated_cache) {
                     target_lyrics = lyric_translated_cache
                     target_type = "translated"
                 } else {
                     target_lyrics = lyric_original_cache
                     target_type = "original"
                 }
-
-                var lyric_obj = new Lyrics(target_lyrics);
-                var last_time = 0
-                var last_text = ""
-                var flag = false
-                var real_time = tracker.progress + config_time_offset / 1000
-                if (real_time < 0 || real_time < lyric_obj.lyrics_all[0].timestamp) {
-                    real_time = lyric_obj.lyrics_all[0].timestamp
-                }
-                for (var i = 0; i < lyric_obj.length; i++) {
-                    if ((last_time <= real_time) &&  (real_time < lyric_obj.lyrics_all[i].timestamp)) {
-                        lyric_line.text = last_text
-                        flag = true
-                    }
-                    last_time = lyric_obj.lyrics_all[i].timestamp
-                    last_text = lyric_obj.lyrics_all[i].text
-                    if (flag) {
-                        break
-                    }
+                if (cfg_second_language === "romaji" && valid_romaji_cache) {
+                    second_lyrics = lyric_romaji_cache
+                    second_type = "romaji"
+                } else if (cfg_second_language === "translated" && valid_translated_cache) {
+                    second_lyrics = lyric_translated_cache
+                    second_type = "translated"
+                } else if (cfg_second_language === "original"){
+                    second_lyrics = lyric_original_cache
+                    second_type = "original"
+                } else {
+                    second_type = target_type
                 }
 
-                if (last_text === "" || last_text === null || last_text === undefined) {
+                var ret_lyric = get_lyric_by_time(target_lyrics, tracker.progress)
+
+                if (ret_lyric === "" || ret_lyric === null || ret_lyric === undefined) {
                     switch(target_type) {
                     case "original":
                         valid_original_cache = false
@@ -227,9 +252,26 @@ PlasmoidItem {
                     }
                 }
 
-                if(!flag) {
-                    lyric_line.text = last_text
+                var line = ret_lyric
+
+                if (cfg_second_language != "disbale" && second_type != target_type) {
+                    var second_lyric = get_lyric_by_time(second_lyrics, tracker.progress)
+                    if (second_lyric === "" || second_lyric === null || second_lyric === undefined) {
+                        switch(second_type) {
+                        case "original":
+                            valid_original_cache = false
+                            return
+                        case "translated":
+                            valid_translated_cache = false
+                            return
+                        case "romaji":
+                            valid_romaji_cache = false
+                            return
+                        }
+                    }
+                    line = line + " " + second_lyric
                 }
+                lyric_line.text = line
             }
         }
 

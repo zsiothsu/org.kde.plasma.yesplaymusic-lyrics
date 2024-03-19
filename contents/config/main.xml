@@ -26,9 +26,14 @@
       <default></default>
     </entry>
 
-    <entry name="translate" type="string">
+    <entry name="first_language" type="string">
       <label>config translation of lyrics.</label>
       <default>original</default>
+    </entry>
+
+    <entry name="second_language" type="string">
+      <label>show second language for lyrics</label>
+      <default>disable</default>
     </entry>
 
   </group>
