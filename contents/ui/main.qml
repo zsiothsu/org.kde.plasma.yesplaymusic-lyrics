@@ -319,11 +319,13 @@ PlasmoidItem {
                 }
             }
             raw_json = raw_json.substring(begin, end)
-
-            // relplace all r"\n" to real "\n"
+            
             if (!(raw_json == undefined || raw_json == null || raw_json == '')) {
-                var relace = raw_json.replace(/\\n/g,'\n')
-                return relace
+                // replace escape character
+                var replace = raw_json.replace(/\\n/g,'\n')
+                replace = replace.replace(/\\\"/g,"\"")
+                replace = replace.replace(/\\\\/g,"\\")
+                return replace
             } else {
                 return ""
             }
