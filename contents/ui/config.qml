@@ -16,7 +16,8 @@ KCM.SimpleKCM {
     property alias cfg_text_font: text_font.selectedFont
     property alias cfg_first_language: first_language_text.text
     property alias cfg_second_language: second_language_text.text
-
+    property alias cfg_second_language_wrapping: second_language_wrapping_text.text
+    property alias cfg_text_align : text_align_text.text
     QtLayouts.ColumnLayout {
         anchors.left: parent.left
 
@@ -142,7 +143,30 @@ KCM.SimpleKCM {
                 }
             }
         }
+        QtLayouts.RowLayout {
+            QtControls.Label {
+                id: second_language_wrapping
+                text: i18n("second language wrapping: ")
+            }
+            QtControls.Label {
+                id: second_language_wrapping_text
+                visible: false
+            }
+            Column {
+                id: second_language_wrapping_column
 
+                QtControls.RadioButton {
+                    text: "disable"
+                    checked: second_language_wrapping_text.text === text
+                    onClicked: second_language_wrapping_text.text = "disable"
+                }
+                QtControls.RadioButton {
+                    text: "enable"
+                    checked: second_language_wrapping_text.text === text
+                    onClicked: second_language_wrapping_text.text = "enable"
+                }
+            }
+        }
         QtLayouts.RowLayout {
             QtControls.Label {
                 id: second_language_layout
@@ -185,6 +209,34 @@ KCM.SimpleKCM {
                 }
             }
         }
+            QtLayouts.RowLayout {
+                QtControls.Label {
+                    id: text_align
+                    text: i18n("text align: ")
+                }
+                QtControls.Label {
+                    id: text_align_text
+                    text: cfg_text_align
+                    visible: false
+                }
 
+                Column {
+                    QtControls.RadioButton {
+                        text: "Left"
+                        checked: cfg_text_align === "Left"
+                        onClicked: cfg_text_align = "Left"
+                    }
+                    QtControls.RadioButton {
+                        text: "Center"
+                        checked: cfg_text_align === "Center"
+                        onClicked: cfg_text_align = "Center"
+                    }
+                    QtControls.RadioButton {
+                        text: "Right"
+                        checked: cfg_text_align === "Right"
+                        onClicked: cfg_text_align = "Right"
+                    }
+                }
+            }
     }
 }

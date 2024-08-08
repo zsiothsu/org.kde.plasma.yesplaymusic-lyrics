@@ -21,14 +21,40 @@ PlasmoidItem {
     fullRepresentation: Item {
         Layout.preferredWidth: lyric_line.implicitWidth
         Layout.preferredHeight: lyric_line.implicitWidth
-        Label {
-            id: lyric_line;
-            text: "";
-            color: config_text_color;
+        ColumnLayout {
+            id: contentLayout
             anchors.fill: parent
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            font: config_text_font || theme.defaultFont
+            spacing: 5
+            Label {
+                Layout.fillWidth: true
+                id: lyric_line;
+                text: root.lyric_line_text
+                color: config_text_color
+                horizontalAlignment: cfg_text_align === "Left" ? Text.AlignLeft :
+                        cfg_text_align === "Right" ? Text.AlignRight :
+                        Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                font: config_text_font || theme.defaultFont
+            }
+            Label {
+                Layout.fillWidth: true
+                id: lyric_second_line
+                visible: plasmoid.configuration.second_language_wrapping !== "disable"
+                opacity: visible ? 1 : 0
+                text: root.lyric_second_line_text
+                color: config_text_color
+                horizontalAlignment: cfg_text_align === "Center" ? Text.AlignHCenter :
+                        cfg_text_align === "Right" ? Text.AlignRight :
+                        Text.AlignLeft
+                verticalAlignment: Text.AlignVCenter
+                font: config_text_font || theme.defaultFont
+                //切换双语过渡动画效果
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 250
+                    }
+                }
+            }
         }
 
         Timer {
@@ -39,9 +65,9 @@ PlasmoidItem {
         property string lyric_original_cache: ''
         property string lyric_translated_cache: ''
         property string lyric_romaji_cache: ''
-        property int id_original_cache: 0
-        property int id_translated_cache: 0
-        property int id_romaji_cache: 0
+        property real id_original_cache: 0
+        property real id_translated_cache: 0
+        property real id_romaji_cache: 0
         property bool valid_original_cache: false
         property bool valid_translated_cache: false
         property bool valid_romaji_cache: false
@@ -51,7 +77,7 @@ PlasmoidItem {
         property int timeout_count: 0
 
         function get_lyric() {
-            var xhr= new XMLHttpRequest();
+            var xhr = new XMLHttpRequest();
             xhr.open('GET', 'http://127.0.0.1:27232/player', false);
             xhr.send(null);
             if (200 == xhr.status) {
@@ -67,6 +93,7 @@ PlasmoidItem {
                 }
                 if (timeout_count >= 5) {
                     lyric_line.text = ""
+                    lyric_second_line.text = ""
                     id_original_cache = 0
                     id_translated_cache = 0
                     id_romaji_cache = 0
@@ -85,7 +112,7 @@ PlasmoidItem {
                 real_time = lyric_obj.lyrics_all[0].timestamp
             }
             for (var i = 0; i < lyric_obj.length; i++) {
-                if ((last_time <= real_time) &&  (real_time < lyric_obj.lyrics_all[i].timestamp)) {
+                if ((last_time <= real_time) && (real_time < lyric_obj.lyrics_all[i].timestamp)) {
                     target_line = last_text
                     flag = true
                 }
@@ -146,7 +173,9 @@ PlasmoidItem {
              *
              * we can use lrc.lyric
              */
-
+            // default display of song title and artist
+            lyric_line.text = tracker.name
+            lyric_second_line.text = tracker.artist
             if (tracker.id != id_original_cache) {
                 lyric_original_cache = ""
                 id_original_cache = -1
@@ -165,11 +194,11 @@ PlasmoidItem {
 
 
             if (
-                    !valid_original_cache
+                !valid_original_cache
                 || (!valid_translated_cache && !no_translated_cache)
                 || (!valid_romaji_cache && !no_romaji_cache)
-                ) {
-                var xhr= new XMLHttpRequest();
+            ) {
+                var xhr = new XMLHttpRequest();
                 xhr.open('GET', 'http://127.0.0.1:10754/lyric?id=' + tracker.id)
                 xhr.send()
                 xhr.onreadystatechange = function () {
@@ -184,7 +213,7 @@ PlasmoidItem {
                          */
                         var lyrics = extract_lyrics(raw_json)
                         /* cache lyric */
-                        if (lyrics.original != "") {
+                        if (lyrics.original !== "") {
                             lyric_original_cache = lyrics.original
                             id_original_cache = tracker.id
                             valid_original_cache = true
@@ -229,7 +258,7 @@ PlasmoidItem {
                 } else if (cfg_second_language === "translated" && valid_translated_cache) {
                     second_lyrics = lyric_translated_cache
                     second_type = "translated"
-                } else if (cfg_second_language === "original"){
+                } else if (cfg_second_language === "original") {
                     second_lyrics = lyric_original_cache
                     second_type = "original"
                 } else {
@@ -239,25 +268,7 @@ PlasmoidItem {
                 var ret_lyric = get_lyric_by_time(target_lyrics, tracker.progress)
 
                 if (ret_lyric === "" || ret_lyric === null || ret_lyric === undefined) {
-                    switch(target_type) {
-                    case "original":
-                        valid_original_cache = false
-                        return
-                    case "translated":
-                        valid_translated_cache = false
-                        return
-                    case "romaji":
-                        valid_romaji_cache = false
-                        return
-                    }
-                }
-
-                var line = ret_lyric
-
-                if (cfg_second_language != "disbale" && second_type != target_type) {
-                    var second_lyric = get_lyric_by_time(second_lyrics, tracker.progress)
-                    if (second_lyric === "" || second_lyric === null || second_lyric === undefined) {
-                        switch(second_type) {
+                    switch (target_type) {
                         case "original":
                             valid_original_cache = false
                             return
@@ -267,11 +278,34 @@ PlasmoidItem {
                         case "romaji":
                             valid_romaji_cache = false
                             return
+                    }
+                }
+
+                var line = ret_lyric
+
+                if (cfg_second_language != "disable" && second_type != target_type) {
+                    var second_lyric = get_lyric_by_time(second_lyrics, tracker.progress)
+                    if (second_lyric === "" || second_lyric === null || second_lyric === undefined) {
+                        switch (second_type) {
+                            case "original":
+                                valid_original_cache = false
+                                return
+                            case "translated":
+                                valid_translated_cache = false
+                                return
+                            case "romaji":
+                                valid_romaji_cache = false
+                                return
                         }
                     }
-                    line = line + " " + second_lyric
+                    if (cfg_second_language_wrapping != "disbale")
+                        lyric_second_line.text = second_lyric
+                    else
+                        line = line + " " + second_lyric
+                } else {
+                    lyric_second_line.text = "";
                 }
-                lyric_line.text = line
+                lyric_line.text = line;
             }
         }
 
@@ -319,12 +353,12 @@ PlasmoidItem {
                 }
             }
             raw_json = raw_json.substring(begin, end)
-            
+
             if (!(raw_json == undefined || raw_json == null || raw_json == '')) {
                 // replace escape character
-                var replace = raw_json.replace(/\\n/g,'\n')
-                replace = replace.replace(/\\\"/g,"\"")
-                replace = replace.replace(/\\\\/g,"\\")
+                var replace = raw_json.replace(/\\n/g, '\n')
+                replace = replace.replace(/\\\"/g, "\"")
+                replace = replace.replace(/\\\\/g, "\\")
                 return replace
             } else {
                 return ""
@@ -358,7 +392,8 @@ PlasmoidItem {
 
             if (!(ypm_res == undefined || ypm_res == null || ypm_res == '')) {
                 var obj = JSON.parse(ypm_res);
-                return {id: obj.currentTrack.id, progress: obj.progress};
+                const names = obj.currentTrack.ar.map(artist => artist.name).join('/');
+                return {id: obj.currentTrack.id, progress: obj.progress, name: obj.currentTrack.name, artist: names};
             } else {
                 return {id: -1, progress: 0};
             }
