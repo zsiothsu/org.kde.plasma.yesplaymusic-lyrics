@@ -30,10 +30,18 @@
       <label>config translation of lyrics.</label>
       <default>original</default>
     </entry>
+    <entry name="second_language_wrapping" type="string">
+      <label>show second line of lyrics.</label>
+      <default>disable</default>
+    </entry>
 
     <entry name="second_language" type="string">
       <label>show second language for lyrics</label>
       <default>disable</default>
+    </entry>
+    <entry name="text_align" type="string">
+      <label>text align for lyrics</label>
+      <default>Center</default>
     </entry>
 
   </group>
