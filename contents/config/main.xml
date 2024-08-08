@@ -41,7 +41,7 @@
     </entry>
     <entry name="text_align" type="string">
       <label>text align for lyrics</label>
-      <default>Center</default>
+      <default>Left</default>
     </entry>
 
   </group>

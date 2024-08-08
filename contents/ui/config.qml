@@ -189,7 +189,7 @@ KCM.SimpleKCM {
 
                 QtControls.RadioButton {
                     text: "disable"
-                    checked: second_language_text.text === text
+                    checked: (second_language_text.text === text) || (second_language_text.text === "")
                     onClicked: second_language_text.text = "disable"
                 }
                 QtControls.RadioButton {
@@ -212,7 +212,7 @@ KCM.SimpleKCM {
             QtLayouts.RowLayout {
                 QtControls.Label {
                     id: text_align
-                    text: i18n("text align ( def: center): ")
+                    text: i18n("text align: ")
                 }
                 QtControls.Label {
                     id: text_align_text
