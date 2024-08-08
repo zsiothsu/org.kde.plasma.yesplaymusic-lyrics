@@ -212,7 +212,7 @@ KCM.SimpleKCM {
             QtLayouts.RowLayout {
                 QtControls.Label {
                     id: text_align
-                    text: i18n("text align ( def: center): ")
+                    text: i18n("text align: ")
                 }
                 QtControls.Label {
                     id: text_align_text
