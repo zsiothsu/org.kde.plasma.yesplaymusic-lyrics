@@ -15,12 +15,14 @@ PlasmoidItem {
     readonly property string config_text_font: Plasmoid.configuration.text_font
     readonly property string cfg_first_language: Plasmoid.configuration.first_language
     readonly property string cfg_second_language: Plasmoid.configuration.second_language
+    readonly property string cfg_second_language_wrapping: Plasmoid.configuration.second_language_wrapping
+    readonly property string cfg_text_align: Plasmoid.configuration.text_align
 
     compactRepresentation: fullRepresentation
     preferredRepresentation: Plasmoid.fullRepresentation
     fullRepresentation: Item {
-        Layout.preferredWidth: lyric_line.implicitWidth
-        Layout.preferredHeight: lyric_line.implicitWidth
+        Layout.preferredWidth: lyric_line.implicitWidth > lyric_second_line.implicitWidth ? lyric_line.implicitWidth : lyric_second_line.implicitWidth
+        Layout.preferredHeight: lyric_line.implicitHeight > lyric_second_line.implicitHeight ? lyric_line.implicitHeight : lyric_second_line.implicitHeight
         ColumnLayout {
             id: contentLayout
             anchors.fill: parent
@@ -298,7 +300,7 @@ PlasmoidItem {
                                 return
                         }
                     }
-                    if (cfg_second_language_wrapping != "disbale")
+                    if (cfg_second_language_wrapping != "disable")
                         lyric_second_line.text = second_lyric
                     else
                         line = line + " " + second_lyric
