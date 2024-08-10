@@ -2,9 +2,29 @@
 
 ## 前言
 作为重度网易云用户，YesPlayMusic 大概是我能在linux上找到的最好的播放器了，但是歌词显示一直是个痛点。本人平常主力机是Archlinux，桌面环境是kde，有啥需求当然是直接在aur里面找，但找到的桌面歌词软件都有这样那样的bug，实在不尽人意。
-正巧昨日在贴吧刷到了@LiYulin大佬为kde做的[插件](https://github.com/LiYulin-s/org.kde.plasma.ypm-lyrics)，是用python后端加上qml前端编写的，于是想着能不能把这后端也去了。于是便产生了这个小项目。解析歌词的部分使用了[js-lyrics](https://github.com/frank-deng/js-lyrics)库
+正巧某日在贴吧刷到了@LiYulin大佬为kde做的[插件](https://github.com/LiYulin-s/org.kde.plasma.ypm-lyrics)，是用python后端加上qml前端编写的，于是想着能不能把这后端也去了。于是便产生了这个小项目。解析歌词的部分使用了[js-lyrics](https://github.com/frank-deng/js-lyrics)库
+
+## 安装
+
+```shell
+$ git clone https://github.com/zsiothsu/org.kde.plasma.yesplaymusic-lyrics
+$ cp -r org.kde.plasma.yesplaymusic-lyrics ~/.local/share/plasma/plasmoids/org.kde.plasma.yesplaymusic-lyrics
+```
+
+## 效果
+
+**pannel 模式（在右上角）：**
+
+![](img/pannel.jpg)
+
+**桌面模式：**
+
+![](img/desktop.jpg)
+
+桌面模式还没法置顶在所有窗口上，如果有大佬知道怎么实现的话欢迎发起pr！
 
 ## 原理
+
 YesPlayMusic在运行时会开放两个api获取歌曲信息，一个是`http://127.0.0.1:27232/player`用来获取基本信息，另一个是`http://127.0.0.1:10754/lyric?id=`用来获取歌词，两个api的返回值如下:
 
 `/* http://127.0.0.1:27232/player */`:
@@ -23,7 +43,6 @@ YesPlayMusic在运行时会开放两个api获取歌曲信息，一个是`http://
     }],
     "alia": ["PS Vitaゲーム「Fate/hollow ataraxia」OPテーマ"],
     "pop": 40,
-    ......
     "progress":61.662793
 }
 ```
@@ -68,10 +87,4 @@ YesPlayMusic在运行时会开放两个api获取歌曲信息，一个是`http://
      },
      "code": 200
  }
-```
-
-## 安装
-```shell
-git clone https://github.com/zsiothsu/org.kde.plasma.yesplaymusic-lyrics
-cp -r org.kde.plasma.yesplaymusic-lyrics ~/.local/share/plasma/plasmoids/org.kde.plasma.yesplaymusic-lyrics
 ```

@@ -23,6 +23,7 @@ PlasmoidItem {
     fullRepresentation: Item {
         Layout.preferredWidth: lyric_line.implicitWidth > lyric_second_line.implicitWidth ? lyric_line.implicitWidth : lyric_second_line.implicitWidth
         Layout.preferredHeight: lyric_line.implicitHeight > lyric_second_line.implicitHeight ? lyric_line.implicitHeight : lyric_second_line.implicitHeight
+        Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
         ColumnLayout {
             id: contentLayout
             anchors.fill: parent
