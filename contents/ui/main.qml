@@ -9,6 +9,9 @@ import "lyrics.js" as Json_lyrics
 PlasmoidItem {
     id: root
 
+    /*****************************************************************************
+     *                             configurations                                *
+     *****************************************************************************/
     readonly property int config_flush_time: Plasmoid.configuration.flush_time
     readonly property int config_time_offset: Plasmoid.configuration.time_offset
     readonly property string config_text_color: Plasmoid.configuration.text_color
@@ -18,12 +21,43 @@ PlasmoidItem {
     readonly property string cfg_second_language_wrapping: Plasmoid.configuration.second_language_wrapping
     readonly property string cfg_text_align: Plasmoid.configuration.text_align
 
+
+    /*****************************************************************************
+     *                               main layout                                 *
+     *****************************************************************************/
     compactRepresentation: fullRepresentation
     preferredRepresentation: Plasmoid.fullRepresentation
     fullRepresentation: Item {
+        /**
+         * main layout properties
+         */
         Layout.preferredWidth: lyric_line.implicitWidth > lyric_second_line.implicitWidth ? lyric_line.implicitWidth : lyric_second_line.implicitWidth
         Layout.preferredHeight: lyric_line.implicitHeight > lyric_second_line.implicitHeight ? lyric_line.implicitHeight : lyric_second_line.implicitHeight
         Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
+
+        /**
+         * global variables
+         */
+        property string lyric_original_cache: ''
+        property string lyric_translated_cache: ''
+        property string lyric_romaji_cache: ''
+        property real id_original_cache: 0
+        property real id_translated_cache: 0
+        property real id_romaji_cache: 0
+        property bool valid_original_cache: false
+        property bool valid_translated_cache: false
+        property bool valid_romaji_cache: false
+        property bool tanslate_no_need: false
+        property bool romaji_no_need: false
+        property int timeout_count: 0
+        property int intro: -1
+        property bool puremusic: false
+
+        /**
+         * \name        contentLayout
+         * \type        ColumnLayout
+         * \brief       lyric pannel
+         */
         ColumnLayout {
             id: contentLayout
             anchors.fill: parent
@@ -60,25 +94,22 @@ PlasmoidItem {
             }
         }
 
+        /**
+         * \name        timer
+         * \type        Timer
+         * \brief       get lyric per `config_flush_time`
+         */
         Timer {
+            id: timer
             interval: config_flush_time; running: true; repeat: true
             onTriggered: get_lyric();
         }
 
-        property string lyric_original_cache: ''
-        property string lyric_translated_cache: ''
-        property string lyric_romaji_cache: ''
-        property real id_original_cache: 0
-        property real id_translated_cache: 0
-        property real id_romaji_cache: 0
-        property bool valid_original_cache: false
-        property bool valid_translated_cache: false
-        property bool valid_romaji_cache: false
-        property bool no_translated_cache: false
-        property bool no_romaji_cache: false
 
-        property int timeout_count: 0
-
+        /**
+         * \name        get_lyric
+         * \brief       get lyric from yesplaymusic api. reset status if timeout
+         */
         function get_lyric() {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', 'http://127.0.0.1:27232/player', false);
@@ -104,6 +135,13 @@ PlasmoidItem {
             }
         }
 
+        /**
+         * \name        get_lyric_by_time
+         * \brief       get lyric line by current progress
+         * \return      intro: musical introduction of a song
+         *              "": error
+         *              other: current lyric
+         */
         function get_lyric_by_time(lyrics, time) {
             var lyric_obj = new Lyrics(lyrics)
             var last_time = 0
@@ -112,7 +150,7 @@ PlasmoidItem {
             var real_time = time + config_time_offset / 1000
             var target_line = ""
             if (real_time < 0 || real_time < lyric_obj.lyrics_all[0].timestamp) {
-                real_time = lyric_obj.lyrics_all[0].timestamp
+                return intro
             }
             for (var i = 0; i < lyric_obj.length; i++) {
                 if ((last_time <= real_time) && (real_time < lyric_obj.lyrics_all[i].timestamp)) {
@@ -132,6 +170,10 @@ PlasmoidItem {
             }
         }
 
+        /**
+         * \name        select_lyric
+         * \brief       select current lyric line by tracker
+         */
         function select_lyric(tracker) {
             /*
              *  the response of api http://127.0.0.1:10754/lyric?id=
@@ -176,9 +218,21 @@ PlasmoidItem {
              *
              * we can use lrc.lyric
              */
-            // default display of song title and artist
-            lyric_line.text = tracker.name
-            lyric_second_line.text = tracker.artist
+
+            /*
+             * default display of song title and artist
+             */
+            if (cfg_second_language_wrapping != "disable") {
+                lyric_line.text = tracker.name
+                lyric_second_line.text = tracker.artist
+            } else {
+                lyric_line.text = tracker.name + " - " + tracker.artist
+                lyric_second_line.text = ""
+            }
+
+            /*
+             * clear cache if song id changed
+             */
             if (tracker.id != id_original_cache) {
                 lyric_original_cache = ""
                 id_original_cache = -1
@@ -196,10 +250,13 @@ PlasmoidItem {
             }
 
 
+            /*
+             * get lyrics if not cached
+             */
             if (
                 !valid_original_cache
-                || (!valid_translated_cache && !no_translated_cache)
-                || (!valid_romaji_cache && !no_romaji_cache)
+                || (!valid_translated_cache && !tanslate_no_need)
+                || (!valid_romaji_cache && !romaji_no_need)
             ) {
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', 'http://127.0.0.1:10754/lyric?id=' + tracker.id)
@@ -215,32 +272,50 @@ PlasmoidItem {
                          * so, manually parsing JSON here
                          */
                         var lyrics = extract_lyrics(raw_json)
-                        /* cache lyric */
+
+                        puremusic = lyrics.puremusic
+
+                        /* cache original lyric */
                         if (lyrics.original !== "") {
                             lyric_original_cache = lyrics.original
                             id_original_cache = tracker.id
                             valid_original_cache = true
+
+                            /* reset status whether translation or romaji is need */
+                            tanslate_no_need = false
+                            romaji_no_need = false
                         }
+
+                        /* cache traslated lyric */
                         if (lyrics.translated != "") {
                             lyric_translated_cache = lyrics.translated
                             id_translated_cache = tracker.id
                             valid_translated_cache = true
                         } else if (valid_original_cache) {
-                            no_translated_cache = true
+                            /* translation is not neeed */
+                            tanslate_no_need = true
                         }
+
+                        /* cache romaji */
                         if (lyrics.romaji != "") {
                             lyric_romaji_cache = lyrics.romaji
                             id_romaji_cache = tracker.id
                             valid_romaji_cache = true
                         } else if (valid_original_cache) {
-                            no_romaji_cache = true
+                            /* romaji is not neeed */
+                            romaji_no_need = true
                         }
                     }
                 }
             }
 
-            if (valid_original_cache) {
-                // select original tor other types
+            /*
+             * select lyric by time if caches are valid
+             */
+            if (valid_original_cache && !puremusic) {
+                /*
+                 * select type of first and second line
+                 */
                 var target_lyrics = ""
                 var target_type = ""
                 var second_lyrics = ""
@@ -268,9 +343,11 @@ PlasmoidItem {
                     second_type = target_type
                 }
 
-                var ret_lyric = get_lyric_by_time(target_lyrics, tracker.progress)
-
-                if (ret_lyric === "" || ret_lyric === null || ret_lyric === undefined) {
+                /*
+                 * get lyric for first line
+                 */
+                var line = get_lyric_by_time(target_lyrics, tracker.progress)
+                if (line === "" || line === null || line === undefined) {
                     switch (target_type) {
                         case "original":
                             valid_original_cache = false
@@ -283,9 +360,16 @@ PlasmoidItem {
                             return
                     }
                 }
+                if (line != intro) {
+                    lyric_line.text = line
+                    lyric_second_line.text = ""
+                } else {
+                    /* song intro(前奏部分), no change */
+                }
 
-                var line = ret_lyric
-
+                /*
+                 * get lyric for first line
+                 */
                 if (cfg_second_language != "disable" && second_type != target_type) {
                     var second_lyric = get_lyric_by_time(second_lyrics, tracker.progress)
                     if (second_lyric === "" || second_lyric === null || second_lyric === undefined) {
@@ -301,25 +385,54 @@ PlasmoidItem {
                                 return
                         }
                     }
-                    if (cfg_second_language_wrapping != "disable")
-                        lyric_second_line.text = second_lyric
-                    else
-                        line = line + " " + second_lyric
+                    if (cfg_second_language_wrapping != "disable") {
+                        if (second_lyric != intro) {
+                            lyric_second_line.text = second_lyric
+                        } else {
+                            /* song intro(前奏部分), no change */
+                        }
+                    } else  {
+                        if (second_lyric != intro) {
+                            lyric_line.text = lyric_line.text + " " + second_lyric
+                        } else {
+                            /* song intro(前奏部分), no change */
+                        }
+                    }
                 } else {
                     lyric_second_line.text = "";
                 }
-                lyric_line.text = line;
             }
         }
 
+        /**
+         * \name        extract_lyrics
+         * \brief       return structure of extracted lyrics 
+         */
         function extract_lyrics(raw_json) {
+            var pure = false
+            if (raw_json.indexOf("\"pureMusic\":") != -1) {
+                begin = raw_json.indexOf("\"pureMusic\":") + 12
+                var puremusic_str = raw_json.substring(begin, begin + 4)
+                if (puremusic_str == "true") {
+                    pure = true
+                } else {
+                    pure = false
+                }
+            } else {
+                pure = false
+            }
             return {
                 original: extract_translated_lyrics(raw_json, "original"),
                 translated: extract_translated_lyrics(raw_json, "translated"),
-                romaji: extract_translated_lyrics(raw_json, "romaji")
+                romaji: extract_translated_lyrics(raw_json, "romaji"),
+                puremusic: pure
             }
         }
 
+        /**
+         * \name        extract_translated_lyrics
+         * \brief       extract lyric by manual parsing
+         */
         function extract_translated_lyrics(raw_json, type) {
             /* get .lrc*/
             var begin = 0
@@ -368,6 +481,10 @@ PlasmoidItem {
             }
         }
 
+        /**
+         * \name        get_id_progress
+         * \brief       get song id and progress
+         */
         function get_id_progress(ypm_res) {
             /*
              *  the response of api http://127.0.0.1:27232/player
